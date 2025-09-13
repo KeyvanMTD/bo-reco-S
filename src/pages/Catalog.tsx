@@ -4,104 +4,32 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Search, Filter, X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 
-const mockProducts = [
-  {
-    id: 'PRD_001',
-    name: 'Wireless Bluetooth Headphones',
-    brand: 'TechSound',
-    price: 99.99,
-    stock: 156,
-    tags: ['Electronics', 'Audio', 'Wireless'],
-    description: 'Premium wireless headphones with noise cancellation and 30-hour battery life.',
-    image: 'https://picsum.photos/300/400?random=1',
-    category: 'Electronics',
-    sku: 'TS-WBH-001',
-    metadata: {
-      weight: '250g',
-      color: 'Black',
-      warranty: '2 years',
-    },
-  },
-  {
-    id: 'PRD_002',
-    name: 'Organic Cotton T-Shirt',
-    brand: 'EcoWear',
-    price: 29.99,
-    stock: 89,
-    tags: ['Clothing', 'Organic', 'Sustainable'],
-    description: 'Comfortable organic cotton t-shirt made from sustainable materials.',
-    image: 'https://picsum.photos/300/400?random=2',
-    category: 'Clothing',
-    sku: 'EW-OCT-002',
-    metadata: {
-      material: '100% Organic Cotton',
-      size: 'M',
-      care: 'Machine wash cold',
-    },
-  },
-  {
-    id: 'PRD_003',
-    name: 'Stainless Steel Water Bottle',
-    brand: 'HydroLife',
-    price: 24.99,
-    stock: 234,
-    tags: ['Kitchen', 'Eco-friendly', 'BPA-free'],
-    description: 'Insulated stainless steel water bottle that keeps drinks cold for 24 hours.',
-    image: 'https://picsum.photos/300/400?random=3',
-    category: 'Home & Garden',
-    sku: 'HL-SSWB-003',
-    metadata: {
-      capacity: '500ml',
-      material: 'Stainless Steel',
-      insulation: 'Double-wall vacuum',
-    },
-  },
-  {
-    id: 'PRD_004',
-    name: 'Gaming Mechanical Keyboard',
-    brand: 'GamePro',
-    price: 149.99,
-    stock: 45,
-    tags: ['Gaming', 'Mechanical', 'RGB'],
-    description: 'Professional gaming keyboard with cherry MX switches and RGB lighting.',
-    image: 'https://picsum.photos/300/400?random=4',
-    category: 'Electronics',
-    sku: 'GP-GMK-004',
-    metadata: {
-      switches: 'Cherry MX Blue',
-      lighting: 'RGB Backlit',
-      connectivity: 'USB-C',
-    },
-  },
-  {
-    id: 'PRD_005',
-    name: 'Yoga Mat Premium',
-    brand: 'ZenFit',
-    price: 39.99,
-    stock: 122,
-    tags: ['Fitness', 'Yoga', 'Non-slip'],
-    description: 'High-quality yoga mat with superior grip and cushioning for all practice levels.',
-    image: 'https://picsum.photos/300/400?random=5',
-    category: 'Sports & Fitness',
-    sku: 'ZF-YMP-005',
-    metadata: {
-      thickness: '6mm',
-      material: 'TPE',
-      dimensions: '183cm x 61cm',
-    },
-  },
-];
+type Product = {
+  id: string;
+  name: string;
+  brand: string;
+  price: number;
+  stock: number;
+  tags: string[];
+  description: string;
+  image: string;
+  category: string;
+  sku: string;
+  metadata: Record<string, string>;
+};
+
+const products: Product[] = [];
 
 export default function Catalog() {
-  const [selectedProduct, setSelectedProduct] = useState<typeof mockProducts[0] | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
 
   const categories = ['All', 'Electronics', 'Clothing', 'Home & Garden', 'Sports & Fitness'];
 
-  const filteredProducts = mockProducts.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.brand.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || selectedCategory === 'All' || product.category === selectedCategory;
@@ -160,47 +88,53 @@ export default function Catalog() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="flex items-center justify-between p-4 bg-card-hover rounded-lg border border-border hover:shadow-sm transition-all duration-200 cursor-pointer"
-                onClick={() => setSelectedProduct(product)}
-              >
-                <div className="flex items-center space-x-4">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-12 h-12 rounded object-cover"
-                  />
-                  <div>
-                    <div className="font-medium text-foreground">{product.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {product.brand} • {product.id}
+          {filteredProducts.length === 0 ? (
+            <div className="text-sm text-muted-foreground py-8 text-center">
+              Aucun produit à afficher
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {filteredProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="flex items-center justify-between p-4 bg-card-hover rounded-lg border border-border hover:shadow-sm transition-all duration-200 cursor-pointer"
+                  onClick={() => setSelectedProduct(product)}
+                >
+                  <div className="flex items-center space-x-4">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-12 h-12 rounded object-cover"
+                    />
+                    <div>
+                      <div className="font-medium text-foreground">{product.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {product.brand} • {product.id}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-6">
+                    <div className="text-right">
+                      <div className="font-medium text-foreground">${product.price}</div>
+                      <div className="text-sm text-muted-foreground">Stock: {product.stock}</div>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {product.tags.slice(0, 2).map((tag) => (
+                        <Badge key={tag} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                      {product.tags.length > 2 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{product.tags.length - 2}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center space-x-6">
-                  <div className="text-right">
-                    <div className="font-medium text-foreground">${product.price}</div>
-                    <div className="text-sm text-muted-foreground">Stock: {product.stock}</div>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {product.tags.slice(0, 2).map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                    {product.tags.length > 2 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{product.tags.length - 2}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -7,50 +7,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Search, Star } from 'lucide-react';
 
-const mockRecommendations = [
-  {
-    id: 'PRD_006',
-    name: 'Premium Wireless Mouse',
-    brand: 'TechPro',
-    price: 79.99,
-    score: 0.95,
-    image: 'https://picsum.photos/300/400?random=6',
-    tags: ['Electronics', 'Wireless', 'Gaming'],
-  },
-  {
-    id: 'PRD_007',
-    name: 'Ergonomic Desk Chair',
-    brand: 'ComfortPlus',
-    price: 299.99,
-    score: 0.87,
-    image: 'https://picsum.photos/300/400?random=7',
-    tags: ['Furniture', 'Ergonomic', 'Office'],
-  },
-  {
-    id: 'PRD_008',
-    name: 'Smart Home Hub',
-    brand: 'HomeConnect',
-    price: 149.99,
-    score: 0.82,
-    image: 'https://picsum.photos/300/400?random=8',
-    tags: ['Smart Home', 'IoT', 'Voice Control'],
-  },
-];
+type Recommendation = {
+  id: string;
+  name: string;
+  brand: string;
+  price: number;
+  score: number;
+  image: string;
+  tags: string[];
+};
 
 export default function Preview() {
-  const [productId, setProductId] = useState('PRD_001');
+  const [productId, setProductId] = useState('');
   const [kind, setKind] = useState('similar');
   const [limit, setLimit] = useState('3');
-  const [recommendations, setRecommendations] = useState(mockRecommendations);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePreview = async () => {
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setRecommendations(mockRecommendations);
-      setIsLoading(false);
-    }, 1000);
+    // Ici, brancher un appel API réel. Pour l'instant, on laisse vide.
+    setRecommendations([]);
+    setIsLoading(false);
   };
 
   const getKindLabel = (kind: string) => {

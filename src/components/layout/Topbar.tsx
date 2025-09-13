@@ -15,30 +15,15 @@ export function Topbar() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="flex items-center space-x-2 px-3">
             <div className="w-6 h-6 bg-primary rounded flex items-center justify-center text-xs font-semibold text-primary-foreground">
-              E
+              T
             </div>
-            <span className="font-medium text-foreground">E-commerce Store</span>
+            <span className="font-medium text-foreground">Tenant</span>
             <ChevronDown className="w-4 h-4 text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-64">
-          <DropdownMenuItem className="flex items-center space-x-3">
-            <div className="w-6 h-6 bg-primary rounded flex items-center justify-center text-xs font-semibold text-primary-foreground">
-              E
-            </div>
-            <div>
-              <div className="font-medium">E-commerce Store</div>
-              <div className="text-xs text-muted-foreground">Production</div>
-            </div>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="flex items-center space-x-3">
-            <div className="w-6 h-6 bg-secondary rounded flex items-center justify-center text-xs font-semibold text-secondary-foreground">
-              D
-            </div>
-            <div>
-              <div className="font-medium">Dev Environment</div>
-              <div className="text-xs text-muted-foreground">Development</div>
-            </div>
+          <DropdownMenuItem className="text-muted-foreground text-sm">
+            Aucun tenant disponible
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -50,14 +35,14 @@ export function Topbar() {
             <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
               <User className="w-4 h-4 text-muted-foreground" />
             </div>
-            <span className="font-medium text-foreground">Alex Martin</span>
+            <span className="font-medium text-foreground">Utilisateur</span>
             <ChevronDown className="w-4 h-4 text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Team Settings</DropdownMenuItem>
-          <DropdownMenuItem>Sign out</DropdownMenuItem>
+          <DropdownMenuItem>Profil</DropdownMenuItem>
+          <DropdownMenuItem>Équipe</DropdownMenuItem>
+          <DropdownMenuItem>Déconnexion</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>

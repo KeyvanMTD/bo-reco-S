@@ -1,65 +1,20 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { StatusBadge } from '@/components/ui/status-badge';
 import { Play, RefreshCw, Calendar } from 'lucide-react';
 
-const ingestionRuns = [
-  {
-    id: 'RUN_001',
-    type: 'Full Sync',
-    status: 'success' as const,
-    inserted: 1243,
-    updated: 856,
-    failed: 0,
-    startedAt: '2024-01-15 14:30:00',
-    endedAt: '2024-01-15 14:45:12',
-    duration: '15m 12s',
-  },
-  {
-    id: 'RUN_002',
-    type: 'Incremental',
-    status: 'warning' as const,
-    inserted: 234,
-    updated: 567,
-    failed: 12,
-    startedAt: '2024-01-15 12:15:00',
-    endedAt: '2024-01-15 12:22:45',
-    duration: '7m 45s',
-  },
-  {
-    id: 'RUN_003',
-    type: 'Full Sync',
-    status: 'success' as const,
-    inserted: 2341,
-    updated: 0,
-    failed: 0,
-    startedAt: '2024-01-15 10:00:00',
-    endedAt: '2024-01-15 10:18:30',
-    duration: '18m 30s',
-  },
-  {
-    id: 'RUN_004',
-    type: 'Incremental',
-    status: 'error' as const,
-    inserted: 0,
-    updated: 0,
-    failed: 156,
-    startedAt: '2024-01-14 18:45:00',
-    endedAt: '2024-01-14 18:47:15',
-    duration: '2m 15s',
-  },
-  {
-    id: 'RUN_005',
-    type: 'Full Sync',
-    status: 'success' as const,
-    inserted: 1876,
-    updated: 1234,
-    failed: 3,
-    startedAt: '2024-01-14 16:30:00',
-    endedAt: '2024-01-14 16:52:18',
-    duration: '22m 18s',
-  },
-];
+type IngestionRun = {
+  id: string;
+  type: string;
+  status: 'success' | 'warning' | 'error' | 'pending';
+  inserted: number;
+  updated: number;
+  failed: number;
+  startedAt: string;
+  endedAt: string;
+  duration: string;
+};
+
+const ingestionRuns: IngestionRun[] = [];
 
 export default function Ingestions() {
   const formatDate = (dateString: string) => {
@@ -163,56 +118,62 @@ export default function Ingestions() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {ingestionRuns.map((run) => (
-              <div
-                key={run.id}
-                className="flex items-center justify-between p-4 bg-card-hover rounded-lg border border-border hover:shadow-sm transition-all duration-200"
-              >
-                <div className="flex items-center space-x-4">
-                  <StatusBadge status={run.status} size="md">
-                    {getStatusLabel(run.status)}
-                  </StatusBadge>
-                  <div>
-                    <div className="font-medium text-foreground">{run.id}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {run.type} • Durée: {run.duration}
+          {ingestionRuns.length === 0 ? (
+            <div className="text-sm text-muted-foreground py-8 text-center">
+              Aucun historique d'ingestion à afficher
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {ingestionRuns.map((run) => (
+                <div
+                  key={run.id}
+                  className="flex items-center justify-between p-4 bg-card-hover rounded-lg border border-border hover:shadow-sm transition-all duration-200"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="text-xs px-2 py-1 rounded-full border border-border text-muted-foreground">
+                      {getStatusLabel(run.status)}
+                    </div>
+                    <div>
+                      <div className="font-medium text-foreground">{run.id}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {run.type} • Durée: {run.duration}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="hidden md:flex items-center space-x-8">
-                  <div className="text-center">
-                    <div className="text-sm font-medium text-success">{run.inserted}</div>
-                    <div className="text-xs text-muted-foreground">Inserted</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm font-medium text-warning">{run.updated}</div>
-                    <div className="text-xs text-muted-foreground">Updated</div>
-                  </div>
-                  {run.failed > 0 && (
+                  <div className="hidden md:flex items-center space-x-8">
                     <div className="text-center">
-                      <div className="text-sm font-medium text-error">{run.failed}</div>
-                      <div className="text-xs text-muted-foreground">Failed</div>
+                      <div className="text-sm font-medium text-success">{run.inserted}</div>
+                      <div className="text-xs text-muted-foreground">Inserted</div>
                     </div>
-                  )}
-                </div>
-
-                <div className="text-right">
-                  <div className="text-sm font-medium text-foreground">
-                    {formatDate(run.startedAt)}
+                    <div className="text-center">
+                      <div className="text-sm font-medium text-warning">{run.updated}</div>
+                      <div className="text-xs text-muted-foreground">Updated</div>
+                    </div>
+                    {run.failed > 0 && (
+                      <div className="text-center">
+                        <div className="text-sm font-medium text-error">{run.failed}</div>
+                        <div className="text-xs text-muted-foreground">Failed</div>
+                      </div>
+                    )}
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    to {formatDate(run.endedAt)}
-                  </div>
-                </div>
 
-                <Button variant="outline" size="sm">
-                  Détails
-                </Button>
-              </div>
-            ))}
-          </div>
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-foreground">
+                      {formatDate(run.startedAt)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      to {formatDate(run.endedAt)}
+                    </div>
+                  </div>
+
+                  <Button variant="outline" size="sm">
+                    Détails
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

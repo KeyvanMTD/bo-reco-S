@@ -8,49 +8,26 @@ import { Separator } from '@/components/ui/separator';
 import { Copy, Eye, EyeOff, Plus, Trash2, Edit } from 'lucide-react';
 import { useState } from 'react';
 
-const apiKeys = [
-  {
-    id: 'key_1',
-    name: 'Production API Key',
-    value: 'reco_prod_12345678901234567890',
-    created: '2024-01-10',
-    lastUsed: '2024-01-15',
-  },
-  {
-    id: 'key_2',
-    name: 'Development API Key',
-    value: 'reco_dev_abcdefghijklmnopqrst',
-    created: '2024-01-05',
-    lastUsed: '2024-01-14',
-  },
-];
+type ApiKey = {
+  id: string;
+  name: string;
+  value: string;
+  created: string;
+  lastUsed: string;
+};
 
-const users = [
-  {
-    id: 'user_1',
-    name: 'Alex Martin',
-    email: 'alex.martin@company.com',
-    role: 'Admin',
-    status: 'Active',
-    lastLogin: '2024-01-15',
-  },
-  {
-    id: 'user_2',
-    name: 'Sarah Connor',
-    email: 'sarah.connor@company.com',
-    role: 'Editor',
-    status: 'Active',
-    lastLogin: '2024-01-14',
-  },
-  {
-    id: 'user_3',
-    name: 'John Doe',
-    email: 'john.doe@company.com',
-    role: 'Viewer',
-    status: 'Pending',
-    lastLogin: 'Never',
-  },
-];
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  role: 'Admin' | 'Editor' | 'Viewer';
+  status: 'Active' | 'Pending' | 'Disabled';
+  lastLogin: string;
+};
+
+const apiKeys: ApiKey[] = [];
+
+const users: User[] = [];
 
 export default function Settings() {
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(new Set());
@@ -98,13 +75,13 @@ export default function Settings() {
               <Label htmlFor="tenantName" className="text-sm font-medium text-foreground">
                 Nom du tenant
               </Label>
-              <Input id="tenantName" defaultValue="E-commerce Store" />
+              <Input id="tenantName" defaultValue="" placeholder="Nom du tenant" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="tenantId" className="text-sm font-medium text-foreground">
                 Tenant ID
               </Label>
-              <Input id="tenantId" value="tenant_ecom_001" disabled />
+              <Input id="tenantId" value="" disabled placeholder="—" />
             </div>
           </div>
           <div className="space-y-2">
@@ -113,7 +90,8 @@ export default function Settings() {
             </Label>
             <Input 
               id="description" 
-              defaultValue="Production environment for e-commerce recommendations" 
+              defaultValue="" 
+              placeholder="Description" 
             />
           </div>
           <Button className="bg-primary hover:bg-primary-hover text-primary-foreground">
@@ -134,50 +112,56 @@ export default function Settings() {
           </Button>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {apiKeys.map((key) => (
-              <div
-                key={key.id}
-                className="flex items-center justify-between p-4 bg-card-hover rounded-lg border border-border"
-              >
-                <div className="flex-1">
-                  <div className="font-medium text-foreground mb-1">{key.name}</div>
-                  <div className="font-mono text-sm text-muted-foreground mb-2">
-                    {visibleKeys.has(key.id) ? key.value : maskApiKey(key.value)}
+          {apiKeys.length === 0 ? (
+            <div className="text-sm text-muted-foreground py-8 text-center">
+              Aucune clé API
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {apiKeys.map((key) => (
+                <div
+                  key={key.id}
+                  className="flex items-center justify-between p-4 bg-card-hover rounded-lg border border-border"
+                >
+                  <div className="flex-1">
+                    <div className="font-medium text-foreground mb-1">{key.name}</div>
+                    <div className="font-mono text-sm text-muted-foreground mb-2">
+                      {visibleKeys.has(key.id) ? key.value : maskApiKey(key.value)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Créée: {key.created} • Dernière utilisation: {key.lastUsed}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    Créée: {key.created} • Dernière utilisation: {key.lastUsed}
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toggleKeyVisibility(key.id)}
+                    >
+                      {visibleKeys.has(key.id) ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyToClipboard(key.value)}
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Trash2 className="w-4 h-4 text-error" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleKeyVisibility(key.id)}
-                  >
-                    {visibleKeys.has(key.id) ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => copyToClipboard(key.value)}
-                  >
-                    <Copy className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Trash2 className="w-4 h-4 text-error" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -259,52 +243,58 @@ export default function Settings() {
           </Button>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {users.map((user) => (
-              <div
-                key={user.id}
-                className="flex items-center justify-between p-4 bg-card-hover rounded-lg border border-border"
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
-                    <span className="text-sm font-semibold text-foreground">
-                      {user.name.split(' ').map(n => n[0]).join('')}
-                    </span>
+          {users.length === 0 ? (
+            <div className="text-sm text-muted-foreground py-8 text-center">
+              Aucun utilisateur
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {users.map((user) => (
+                <div
+                  key={user.id}
+                  className="flex items-center justify-between p-4 bg-card-hover rounded-lg border border-border"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
+                      <span className="text-sm font-semibold text-foreground">
+                        {user.name.split(' ').map(n => n[0]).join('')}
+                      </span>
+                    </div>
+                    <div>
+                      <div className="font-medium text-foreground">{user.name}</div>
+                      <div className="text-sm text-muted-foreground">{user.email}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="font-medium text-foreground">{user.name}</div>
-                    <div className="text-sm text-muted-foreground">{user.email}</div>
+                  <div className="flex items-center space-x-4">
+                    <Badge 
+                      variant={user.role === 'Admin' ? 'default' : 'secondary'}
+                      className="text-xs"
+                    >
+                      {user.role}
+                    </Badge>
+                    <Badge 
+                      variant={user.status === 'Active' ? 'secondary' : 'outline'}
+                      className={user.status === 'Active' ? 'text-success' : 'text-warning'}
+                    >
+                      {user.status}
+                    </Badge>
+                    <div className="text-xs text-muted-foreground text-right">
+                      <div>Dernière connexion:</div>
+                      <div>{user.lastLogin}</div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button variant="outline" size="sm">
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Trash2 className="w-4 h-4 text-error" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center space-x-4">
-                  <Badge 
-                    variant={user.role === 'Admin' ? 'default' : 'secondary'}
-                    className="text-xs"
-                  >
-                    {user.role}
-                  </Badge>
-                  <Badge 
-                    variant={user.status === 'Active' ? 'secondary' : 'outline'}
-                    className={user.status === 'Active' ? 'text-success' : 'text-warning'}
-                  >
-                    {user.status}
-                  </Badge>
-                  <div className="text-xs text-muted-foreground text-right">
-                    <div>Dernière connexion:</div>
-                    <div>{user.lastLogin}</div>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Trash2 className="w-4 h-4 text-error" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
