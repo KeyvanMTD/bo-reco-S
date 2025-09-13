@@ -65,8 +65,7 @@ export default function Mappings() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Client Fields */
-        }
+        {/* Client Fields */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-foreground">
@@ -129,7 +128,7 @@ export default function Mappings() {
           </CardContent>
         </Card>
 
-        {/* Unified Fields */
+        {/* Unified Fields */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-foreground">
@@ -173,7 +172,7 @@ export default function Mappings() {
         </Card>
       </div>
 
-      {/* Mapping Versions */
+      {/* Mapping Versions */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-foreground">

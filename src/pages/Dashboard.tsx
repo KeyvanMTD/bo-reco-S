@@ -1,6 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useQuery } from '@tanstack/react-query';
+import { Api } from '@/lib/api';
 
 export default function Dashboard() {
+  const { data: health, isLoading } = useQuery({ queryKey: ['health'], queryFn: Api.health });
   return (
     <div className="space-y-6">
       <div>
@@ -10,16 +13,21 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* KPI Cards - aucune donnée disponible */}
+      {/* KPI Cards - Santé du service */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="hover:shadow-md transition-shadow duration-200">
           <CardHeader className="space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Aucune donnée
+              Santé du service
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">-</div>
+            <div className="text-2xl font-bold text-foreground">
+              {isLoading ? '...' : health?.status ?? '-'}
+            </div>
+            {health?.db && (
+              <p className="text-xs text-muted-foreground mt-1">DB: {health.db}</p>
+            )}
           </CardContent>
         </Card>
       </div>

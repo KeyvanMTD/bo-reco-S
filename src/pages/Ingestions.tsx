@@ -1,22 +1,27 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, RefreshCw, Calendar } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Api, DEFAULT_TENANT } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
-type IngestionRun = {
+type ApiRun = {
   id: string;
+  tenant: string;
   type: string;
-  status: 'success' | 'warning' | 'error' | 'pending';
-  inserted: number;
-  updated: number;
-  failed: number;
-  startedAt: string;
-  endedAt: string;
-  duration: string;
+  status: string;
+  counts?: { inserted?: number; updated?: number; failed?: number };
+  started_at: string;
+  ended_at?: string;
 };
 
-const ingestionRuns: IngestionRun[] = [];
-
 export default function Ingestions() {
+  const { data: runs, isLoading } = useQuery({
+    queryKey: ['runs', DEFAULT_TENANT, 'ingest'],
+    queryFn: () => Api.runs({ tenant: DEFAULT_TENANT, type: 'ingest', limit: 20 }),
+  });
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('fr-FR', {
@@ -41,6 +46,19 @@ export default function Ingestions() {
     }
   };
 
+  const handleStartIngestion = async () => {
+    const feedUrl = window.prompt('URL du feed produit ?');
+    if (!feedUrl) return;
+    try {
+      await Api.ingestStart({ tenant: DEFAULT_TENANT, feed_url: feedUrl, feed_type: 'json', batch_size: 100, dry_run: false });
+      toast({ title: 'Ingestion démarrée', description: 'Le run a été lancé avec succès.' });
+      queryClient.invalidateQueries({ queryKey: ['runs', DEFAULT_TENANT, 'ingest'] });
+    } catch (e) {
+      toast({ variant: 'destructive', title: "Échec de l'ingestion", description: 'Vérifiez le feed et réessayez.' });
+      console.error(e);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -55,7 +73,7 @@ export default function Ingestions() {
             <Calendar className="w-4 h-4 mr-2" />
             Planifier
           </Button>
-          <Button className="bg-primary hover:bg-primary-hover text-primary-foreground">
+          <Button className="bg-primary hover:bg-primary-hover text-primary-foreground" onClick={handleStartIngestion}>
             <Play className="w-4 h-4 mr-2" />
             Lancer ingestion
           </Button>
@@ -118,13 +136,15 @@ export default function Ingestions() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {ingestionRuns.length === 0 ? (
+          {isLoading ? (
+            <div className="text-sm text-muted-foreground py-8 text-center">Chargement…</div>
+          ) : !runs || runs.length === 0 ? (
             <div className="text-sm text-muted-foreground py-8 text-center">
               Aucun historique d'ingestion à afficher
             </div>
           ) : (
             <div className="space-y-3">
-              {ingestionRuns.map((run) => (
+              {runs.map((run: ApiRun) => (
                 <div
                   key={run.id}
                   className="flex items-center justify-between p-4 bg-card-hover rounded-lg border border-border hover:shadow-sm transition-all duration-200"
@@ -136,23 +156,27 @@ export default function Ingestions() {
                     <div>
                       <div className="font-medium text-foreground">{run.id}</div>
                       <div className="text-sm text-muted-foreground">
-                        {run.type} • Durée: {run.duration}
+                        {run.type}
                       </div>
                     </div>
                   </div>
 
                   <div className="hidden md:flex items-center space-x-8">
-                    <div className="text-center">
-                      <div className="text-sm font-medium text-success">{run.inserted}</div>
-                      <div className="text-xs text-muted-foreground">Inserted</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm font-medium text-warning">{run.updated}</div>
-                      <div className="text-xs text-muted-foreground">Updated</div>
-                    </div>
-                    {run.failed > 0 && (
+                    {run.counts?.inserted !== undefined && (
                       <div className="text-center">
-                        <div className="text-sm font-medium text-error">{run.failed}</div>
+                        <div className="text-sm font-medium text-success">{run.counts.inserted}</div>
+                        <div className="text-xs text-muted-foreground">Inserted</div>
+                      </div>
+                    )}
+                    {run.counts?.updated !== undefined && (
+                      <div className="text-center">
+                        <div className="text-sm font-medium text-warning">{run.counts.updated}</div>
+                        <div className="text-xs text-muted-foreground">Updated</div>
+                      </div>
+                    )}
+                    {run.counts?.failed !== undefined && run.counts.failed > 0 && (
+                      <div className="text-center">
+                        <div className="text-sm font-medium text-error">{run.counts.failed}</div>
                         <div className="text-xs text-muted-foreground">Failed</div>
                       </div>
                     )}
@@ -160,10 +184,10 @@ export default function Ingestions() {
 
                   <div className="text-right">
                     <div className="text-sm font-medium text-foreground">
-                      {formatDate(run.startedAt)}
+                      {formatDate(run.started_at)}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      to {formatDate(run.endedAt)}
+                      {run.ended_at ? `to ${formatDate(run.ended_at)}` : ''}
                     </div>
                   </div>
 

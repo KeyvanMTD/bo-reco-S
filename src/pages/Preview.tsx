@@ -5,17 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Search, Star } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { Api, DEFAULT_TENANT } from '@/lib/api';
+import { useToast } from '@/components/ui/use-toast';
 
-type Recommendation = {
-  id: string;
-  name: string;
-  brand: string;
-  price: number;
-  score: number;
-  image: string;
-  tags: string[];
-};
+type Recommendation = { product_id: string; score: number };
 
 export default function Preview() {
   const [productId, setProductId] = useState('');
@@ -23,12 +17,28 @@ export default function Preview() {
   const [limit, setLimit] = useState('3');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const handlePreview = async () => {
     setIsLoading(true);
-    // Ici, brancher un appel API réel. Pour l'instant, on laisse vide.
-    setRecommendations([]);
-    setIsLoading(false);
+    try {
+      const res = await Api.recommendationsPreview({
+        tenant: DEFAULT_TENANT,
+        product_id: productId,
+        kind,
+        limit: parseInt(limit),
+      });
+      setRecommendations(res.items);
+    } catch (err) {
+      toast({
+        variant: 'destructive',
+        title: 'Erreur de prévisualisation',
+        description: "Impossible de récupérer les recommandations",
+      });
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getKindLabel = (kind: string) => {
@@ -142,52 +152,13 @@ export default function Preview() {
         </CardHeader>
         <CardContent>
           {recommendations.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recommendations.map((product, index) => (
-                <div
-                  key={product.id}
-                  className="bg-card-hover rounded-lg border border-border overflow-hidden hover:shadow-md transition-all duration-200"
-                >
-                  <div className="relative">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="absolute top-3 right-3">
-                      <Badge 
-                        variant="secondary" 
-                        className={`${getScoreColor(product.score)} bg-background/90 backdrop-blur-sm`}
-                      >
-                        <Star className="w-3 h-3 mr-1" />
-                        {(product.score * 100).toFixed(0)}%
-                      </Badge>
-                    </div>
-                    <div className="absolute top-3 left-3">
-                      <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm">
-                        #{index + 1}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <div className="p-4">
-                    <h3 className="font-semibold text-foreground mb-1">{product.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">{product.brand}</p>
-                    <p className="text-lg font-bold text-foreground mb-3">${product.price}</p>
-                    
-                    <div className="flex flex-wrap gap-1">
-                      {product.tags.slice(0, 2).map((tag) => (
-                        <Badge key={tag} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                      {product.tags.length > 2 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{product.tags.length - 2}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
+            <div className="space-y-2">
+              {recommendations.map((item, index) => (
+                <div key={`${item.product_id}-${index}`} className="flex items-center justify-between p-4 bg-card-hover rounded-lg border border-border">
+                  <div className="font-medium text-foreground">{item.product_id}</div>
+                  <Badge variant="secondary" className={`font-mono ${getScoreColor(item.score)}`}>
+                    {(item.score * 100).toFixed(0)}%
+                  </Badge>
                 </div>
               ))}
             </div>
@@ -218,18 +189,7 @@ export default function Preview() {
           <CardContent>
             <div className="bg-muted rounded-lg p-4 font-mono text-sm">
               <pre className="text-foreground overflow-x-auto">
-{JSON.stringify({
-  productId,
-  kind,
-  limit: parseInt(limit),
-  recommendations: recommendations.map(r => ({
-    id: r.id,
-    name: r.name,
-    brand: r.brand,
-    price: r.price,
-    score: r.score,
-  }))
-}, null, 2)}
+{JSON.stringify({ productId, kind, limit: parseInt(limit), items: recommendations }, null, 2)}
               </pre>
             </div>
           </CardContent>
