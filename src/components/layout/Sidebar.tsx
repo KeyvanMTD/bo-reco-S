@@ -6,7 +6,8 @@ import {
   Database, 
   Eye, 
   Settings,
-  Zap
+  Zap,
+  Activity
 } from 'lucide-react';
 
 const navItems = [
@@ -14,7 +15,9 @@ const navItems = [
   { name: 'Catalog', href: '/catalog', icon: Package },
   { name: 'Mappings', href: '/mappings', icon: ArrowRightLeft },
   { name: 'Ingestions', href: '/ingestions', icon: Database },
+  { name: 'Runs', href: '/runs', icon: Database },
   { name: 'Preview', href: '/preview', icon: Eye },
+  { name: 'Performance', href: '/performance', icon: Activity },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 

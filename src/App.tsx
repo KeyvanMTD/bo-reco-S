@@ -8,9 +8,11 @@ import Dashboard from "./pages/Dashboard";
 import Catalog from "./pages/Catalog";
 import Mappings from "./pages/Mappings";
 import Ingestions from "./pages/Ingestions";
+import Runs from "./pages/Runs";
 import Preview from "./pages/Preview";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import Performance from "./pages/Performance";
 
 const queryClient = new QueryClient();
 
@@ -26,7 +28,9 @@ const App = () => (
             <Route path="catalog" element={<Catalog />} />
             <Route path="mappings" element={<Mappings />} />
             <Route path="ingestions" element={<Ingestions />} />
+            <Route path="runs" element={<Runs />} />
             <Route path="preview" element={<Preview />} />
+            <Route path="performance" element={<Performance />} />
             <Route path="settings" element={<Settings />} />
           </Route>
           <Route path="*" element={<NotFound />} />

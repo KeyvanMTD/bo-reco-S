@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, RefreshCw, Calendar } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Play, RefreshCw, Calendar, Upload } from 'lucide-react';
+import { useMemo, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Api, DEFAULT_TENANT } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +18,8 @@ type ApiRun = {
 };
 
 export default function Ingestions() {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [feedUrl, setFeedUrl] = useState('');
   const { data: runs, isLoading } = useQuery({
     queryKey: ['runs', DEFAULT_TENANT, 'ingest'],
     queryFn: () => Api.runs({ tenant: DEFAULT_TENANT, type: 'ingest', limit: 20 }),
@@ -36,18 +40,42 @@ export default function Ingestions() {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'success':
+      case 'ok':
         return 'Completed';
       case 'warning':
         return 'Partial';
       case 'error':
+      case 'failed':
         return 'Failed';
       default:
         return 'Unknown';
     }
   };
+  // KPIs calculés à partir des vrais runs
+  const { lastRunText, successRate24h, processed24h } = useMemo(() => {
+    const list: ApiRun[] = Array.isArray(runs) ? runs.slice() : [];
+    // tri desc par date de début
+    list.sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime());
+    const last = list[0];
+    const lastRunText = last ? `${formatDate(last.started_at)}${last.ended_at ? ` → ${formatDate(last.ended_at)}` : ''}` : '—';
+
+    const now = Date.now();
+    const in24h = list.filter((r) => now - new Date(r.started_at).getTime() <= 24 * 60 * 60 * 1000);
+    const total24h = in24h.length;
+    const ok24h = in24h.filter((r) => (r.status === 'ok' || r.status === 'success')).length;
+    const successRate24h = total24h > 0 ? Math.round((ok24h / total24h) * 1000) / 10 : 0; // 0.1%
+
+    let processed24h = 0;
+    for (const r of in24h) {
+      const inserted = r.counts?.inserted ?? 0;
+      const updated = r.counts?.updated ?? 0;
+      processed24h += inserted + updated;
+    }
+    return { lastRunText, successRate24h, processed24h };
+  }, [runs]);
+
 
   const handleStartIngestion = async () => {
-    const feedUrl = window.prompt('URL du feed produit ?');
     if (!feedUrl) return;
     try {
       await Api.ingestStart({ tenant: DEFAULT_TENANT, feed_url: feedUrl, feed_type: 'json', batch_size: 100, dry_run: false });
@@ -56,6 +84,32 @@ export default function Ingestions() {
     } catch (e) {
       toast({ variant: 'destructive', title: "Échec de l'ingestion", description: 'Vérifiez le feed et réessayez.' });
       console.error(e);
+    }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelected: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith('.json')) {
+      toast({ variant: 'destructive', title: 'Format invalide', description: 'Veuillez sélectionner un fichier .json' });
+      e.target.value = '';
+      return;
+    }
+    try {
+      const text = await file.text();
+      const json = JSON.parse(text);
+      await Api.ingestStart({ tenant: DEFAULT_TENANT, feed_inline: json, feed_type: 'json', batch_size: 100, dry_run: false });
+      toast({ title: 'Ingestion démarrée', description: `${file.name} envoyé avec succès.` });
+      queryClient.invalidateQueries({ queryKey: ['runs', DEFAULT_TENANT, 'ingest'] });
+    } catch (err) {
+      toast({ variant: 'destructive', title: 'Erreur lors de l\'import', description: 'Vérifiez que le JSON est valide.' });
+      console.error(err);
+    } finally {
+      e.target.value = '';
     }
   };
 
@@ -73,12 +127,31 @@ export default function Ingestions() {
             <Calendar className="w-4 h-4 mr-2" />
             Planifier
           </Button>
-          <Button className="bg-primary hover:bg-primary-hover text-primary-foreground" onClick={handleStartIngestion}>
-            <Play className="w-4 h-4 mr-2" />
-            Lancer ingestion
+          <input ref={fileInputRef} type="file" accept="application/json,.json" className="hidden" onChange={handleFileSelected} />
+          <Button className="bg-secondary hover:bg-secondary-hover text-secondary-foreground" onClick={handleUploadClick}>
+            <Upload className="w-4 h-4 mr-2" />
+            Importer JSON
           </Button>
         </div>
       </div>
+
+      {/* Démarrer via URL */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-foreground">Démarrer via URL</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+          <div className="md:col-span-2">
+            <Input placeholder="https://example.com/feed.json" value={feedUrl} onChange={(e) => setFeedUrl(e.target.value)} />
+          </div>
+          <div>
+            <Button className="w-full bg-primary hover:bg-primary-hover text-primary-foreground" onClick={handleStartIngestion} disabled={!feedUrl}>
+              <Play className="w-4 h-4 mr-2" />
+              Lancer ingestion
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -87,8 +160,8 @@ export default function Ingestions() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Dernière ingestion</p>
-                <p className="text-2xl font-bold text-foreground">2h ago</p>
-                <p className="text-xs text-success mt-1">Completed successfully</p>
+                <p className="text-2xl font-bold text-foreground">{lastRunText}</p>
+                <p className="text-xs text-muted-foreground mt-1">Basé sur l'historique des runs</p>
               </div>
               <div className="p-3 bg-success-light rounded-full">
                 <RefreshCw className="w-6 h-6 text-success" />
@@ -102,8 +175,8 @@ export default function Ingestions() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Taux de succès (24h)</p>
-                <p className="text-2xl font-bold text-foreground">94.2%</p>
-                <p className="text-xs text-warning mt-1">-2.1% vs yesterday</p>
+                <p className="text-2xl font-bold text-foreground">{successRate24h.toFixed(1)}%</p>
+                <p className="text-xs text-muted-foreground mt-1">Sur les dernières 24h</p>
               </div>
               <div className="p-3 bg-warning-light rounded-full">
                 <RefreshCw className="w-6 h-6 text-warning" />
@@ -117,8 +190,8 @@ export default function Ingestions() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Produits traités</p>
-                <p className="text-2xl font-bold text-foreground">6,750</p>
-                <p className="text-xs text-success mt-1">+15% vs last week</p>
+                <p className="text-2xl font-bold text-foreground">{processed24h.toLocaleString('fr-FR')}</p>
+                <p className="text-xs text-muted-foreground mt-1">Somme inserted + updated (24h)</p>
               </div>
               <div className="p-3 bg-success-light rounded-full">
                 <RefreshCw className="w-6 h-6 text-success" />
