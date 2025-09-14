@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import ProductCard from '@/components/ProductCard';
 // Charts neutralisés pour l'instant (en attente d'APIs n8n)
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import Hero from '@/components/Hero';
 
 export default function Performance() {
   const [tenant, setTenant] = useState<string>(() => localStorage.getItem('perf:tenant') || DEFAULT_TENANT || 'la_redoute');
@@ -127,13 +128,14 @@ export default function Performance() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold text-foreground">Performance</h1>
-        <p className="text-muted-foreground mt-1">Suivi des KPIs et analyses</p>
-      </div>
+      <Hero
+        variant="performance"
+        title="Performance & analyses"
+        subtitle="Suivez vos KPIs clés et découvrez les produits qui performent."
+      />
 
       {/* Filtres */}
-      <Card>
+      <Card className="sticky top-16 z-10 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
           <div>
             <label className="text-sm text-foreground">Tenant</label>

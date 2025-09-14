@@ -6,6 +6,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { unifiedProductSchema } from '@/schemas/unifiedProduct';
 import { Api, DEFAULT_TENANT } from '@/lib/api';
 import { ArrowRight, Save, RotateCcw, Upload } from 'lucide-react';
+import Hero from '@/components/Hero';
 
 export default function Mappings() {
   const { toast } = useToast();
@@ -91,11 +92,13 @@ export default function Mappings() {
 
   return (
     <div className="space-y-6">
+      <Hero
+        title="Mappings de données"
+        subtitle="Reliez vos champs sources au schéma unifié pour une ingestion sans friction."
+        actions={[]}
+        variant="catalog"
+      />
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold text-foreground">Mappings</h1>
-          <p className="text-muted-foreground mt-1">Configurez la correspondance entre vos données et le schéma unifié</p>
-        </div>
         <div className="flex gap-3">
           <Button variant="outline" onClick={resetMappings}><RotateCcw className="w-4 h-4 mr-2" />Reset</Button>
           <Button

@@ -12,6 +12,7 @@ import { getRecommendations, type RecoResponse } from '@/lib/recoClient';
 import { Api } from '@/lib/api';
 import ProductCard from '@/components/ProductCard';
 import { Progress } from '@/components/ui/progress';
+import Hero from '@/components/Hero';
 
 type Recommendation = { product_id: string; score: number; why?: string[]; meta?: Record<string, unknown> };
 
@@ -159,12 +160,12 @@ export default function Preview() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold text-foreground">Preview</h1>
-        <p className="text-muted-foreground mt-1">
-          Testez vos recommandations en temps réel
-        </p>
-      </div>
+      <Hero
+        variant="preview"
+        title="Prévisualisez vos recommandations"
+        subtitle="Optimisez vos règles et comparez les scénarios en temps réel."
+        actions={[{ label: 'Guide de prise en main', variant: 'outline', href: '#' }, { label: 'Lancer un test', variant: 'default', onClick: () => { const el = document.getElementById('productId'); el?.focus(); } }]}
+      />
 
       {/* Preview Form */}
       <Card>
@@ -221,7 +222,7 @@ export default function Preview() {
 
             <div className="flex items-end">
               <Button 
-                onClick={handlePreview} 
+                onClick={() => { void handlePreview(); }} 
                 disabled={isLoading || !productId}
                 className="w-full bg-primary hover:bg-primary-hover text-primary-foreground"
               >

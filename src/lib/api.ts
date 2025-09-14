@@ -62,7 +62,26 @@ export async function apiFetch<T>(
 }
 
 export const Api = {
-  health: () => apiFetch<{ status: string; db?: string; last_run?: unknown }>(`/health`),
+  health: async () => {
+    const res: any = await apiFetch<any>(`/health`);
+    // Normalise différentes formes n8n
+    if (res?.status) {
+      return { status: res.status, db: res.db || res.mongo, last_run: res.last_run } as { status: string; db?: string; last_run?: unknown };
+    }
+    if (Array.isArray(res) && res[0]) {
+      const f = res[0];
+      return { status: f.status, db: f.db || f.mongo, last_run: f.last_run } as { status: string; db?: string; last_run?: unknown };
+    }
+    if (res?.["object Object"] && Array.isArray(res["object Object"])) {
+      const f = res["object Object"][0] || {};
+      return { status: f.status, db: f.db || f.mongo, last_run: f.last_run } as { status: string; db?: string; last_run?: unknown };
+    }
+    if (res?.["="]?.["object Object"] && Array.isArray(res["="]["object Object"])) {
+      const f = res["="]["object Object"][0] || {};
+      return { status: f.status, db: f.db || f.mongo, last_run: f.last_run } as { status: string; db?: string; last_run?: unknown };
+    }
+    return { status: 'unknown' } as { status: string };
+  },
   runs: async (params: { tenant: string; type?: string; limit?: number }) => {
     const res: any = await apiFetch<any>(`/runs`, { query: params });
     // Normalize various shapes coming from n8n

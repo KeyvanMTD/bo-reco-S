@@ -24,7 +24,7 @@ function formatPrice(price?: number, currency?: string) {
 export const ProductCard: React.FC<ProductCardProps> = ({ id, name, imageUrl, brand, price, currency, score }) => {
   const percent = typeof score === 'number' ? Math.max(0, Math.min(100, Math.round(score * 100))) : undefined;
   return (
-    <div className="p-4 bg-card rounded-lg border border-border flex items-center gap-4">
+    <div className="p-4 bg-card rounded-xl border border-border flex items-center gap-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
       <div className="w-16 h-16 rounded bg-muted overflow-hidden flex items-center justify-center">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element

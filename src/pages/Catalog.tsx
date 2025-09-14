@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getRecommendations, type RecoResponse } from '@/lib/recoClient';
+import Hero from '@/components/Hero';
 
 type Product = {
   tenant?: string;
@@ -66,17 +67,12 @@ export default function Catalog() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold text-foreground">Catalog</h1>
-          <p className="text-muted-foreground mt-1">
-            Gérez votre catalogue produits
-          </p>
-        </div>
-        <Button className="bg-primary hover:bg-primary-hover text-primary-foreground">
-          Importer produits
-        </Button>
-      </div>
+      <Hero
+        variant="catalog"
+        title="Votre catalogue unifié"
+        subtitle="Recherchez, filtrez et inspectez vos produits. Connecté à vos données en temps réel."
+        actions={[{ label: 'Importer des produits', variant: 'default' }, { label: 'Voir les mappings', variant: 'outline', href: '/mappings' }]}
+      />
 
       {/* Filters */}
       <Card>

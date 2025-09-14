@@ -1,4 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CheckCircle2, XCircle } from 'lucide-react';
+import Hero from '@/components/Hero';
 import { useQuery } from '@tanstack/react-query';
 import { Api, DEFAULT_TENANT } from '@/lib/api';
 
@@ -36,12 +38,14 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">
-          Vue d'ensemble de votre système de recommandations
-        </p>
-      </div>
+      <Hero
+        title="Bienvenue dans RecoAI"
+        subtitle="Pilotez vos recommandations, vos ingestions et vos catalogues depuis un espace unifié."
+        actions={[
+          { label: 'Explorer', variant: 'default' },
+          { label: 'Voir les runs', variant: 'outline', href: '/runs' },
+        ]}
+      />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -52,11 +56,24 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">
-              {loadingHealth ? '...' : health?.status ?? '-'}
+            <div className="flex items-center gap-3">
+              {loadingHealth ? (
+                <div className="text-2xl font-bold text-foreground">...</div>
+              ) : (
+                <>
+                  {String(health?.status || '').toLowerCase() === 'ok' ? (
+                    <CheckCircle2 className="w-6 h-6 text-success" />
+                  ) : (
+                    <XCircle className="w-6 h-6 text-error" />
+                  )}
+                  <div className="text-2xl font-bold text-foreground uppercase">
+                    {health?.status ?? '-'}
+                  </div>
+                </>
+              )}
             </div>
-            {health?.db && (
-              <p className="text-xs text-muted-foreground mt-1">DB: {health.db}</p>
+            {('db' in (health || {}) || 'mongo' in (health || {})) && (
+              <p className="text-xs text-muted-foreground mt-1">DB: {(health as any).db || (health as any).mongo}</p>
             )}
           </CardContent>
         </Card>

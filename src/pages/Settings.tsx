@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Copy, Eye, EyeOff, Plus, Trash2, Edit } from 'lucide-react';
 import { useState } from 'react';
+import Hero from '@/components/Hero';
 
 type ApiKey = {
   id: string;
@@ -55,12 +56,11 @@ export default function Settings() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold text-foreground">Settings</h1>
-        <p className="text-muted-foreground mt-1">
-          Gérez la configuration de votre système de recommandations
-        </p>
-      </div>
+      <Hero
+        title="Paramètres"
+        subtitle="Gérez votre tenant, vos clés API, vos règles et vos utilisateurs."
+        variant="default"
+      />
 
       {/* Tenant Information */}
       <Card>

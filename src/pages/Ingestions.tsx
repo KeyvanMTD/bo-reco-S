@@ -6,6 +6,7 @@ import { useMemo, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Api, DEFAULT_TENANT } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import Hero from '@/components/Hero';
 
 type ApiRun = {
   id: string;
@@ -115,25 +116,13 @@ export default function Ingestions() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold text-foreground">Ingestions</h1>
-          <p className="text-muted-foreground mt-1">
-            Gérez et surveillez vos processus d'ingestion de données
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline">
-            <Calendar className="w-4 h-4 mr-2" />
-            Planifier
-          </Button>
-          <input ref={fileInputRef} type="file" accept="application/json,.json" className="hidden" onChange={handleFileSelected} />
-          <Button className="bg-secondary hover:bg-secondary-hover text-secondary-foreground" onClick={handleUploadClick}>
-            <Upload className="w-4 h-4 mr-2" />
-            Importer JSON
-          </Button>
-        </div>
-      </div>
+      <Hero
+        variant="ingestions"
+        title="Ingestions de données"
+        subtitle="Importez vos produits, mappez vos champs et lancez vos flux en toute confiance."
+        actions={[{ label: 'Planifier', variant: 'outline' }, { label: 'Importer JSON', variant: 'default', onClick: handleUploadClick }]}
+      />
+      <input ref={fileInputRef} type="file" accept="application/json,.json" className="hidden" onChange={handleFileSelected} />
 
       {/* Démarrer via URL */}
       <Card>
