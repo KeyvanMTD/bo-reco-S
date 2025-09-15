@@ -7,7 +7,9 @@ import {
   Eye, 
   Settings,
   Zap,
-  Activity
+  Activity,
+  ListChecks,
+  FileInput
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -15,10 +17,11 @@ const navItems = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Catalog', href: '/catalog', icon: Package },
   { name: 'Mappings', href: '/mappings', icon: ArrowRightLeft },
-  { name: 'Ingestions', href: '/ingestions', icon: Database },
+  { name: 'Ingestions', href: '/ingestions', icon: FileInput },
   { name: 'Runs', href: '/runs', icon: Database },
   { name: 'Preview', href: '/preview', icon: Eye },
   { name: 'Performance', href: '/performance', icon: Activity },
+  { name: 'Rules', href: '/rules', icon: ListChecks },
 ];
 
 export function Sidebar() {

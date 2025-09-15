@@ -13,6 +13,7 @@ import Preview from "./pages/Preview";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Performance from "./pages/Performance";
+import RulesPage from "./pages/Rules";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="runs" element={<Runs />} />
             <Route path="preview" element={<Preview />} />
             <Route path="performance" element={<Performance />} />
+            <Route path="rules" element={<RulesPage />} />
             <Route path="settings" element={<Settings />} />
           </Route>
           <Route path="*" element={<NotFound />} />
