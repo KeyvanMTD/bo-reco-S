@@ -18,7 +18,7 @@ export function Topbar() {
               <span className="text-sm font-bold text-primary-foreground">LR</span>
             </div>
             <div className="flex flex-col items-start">
-              <span className="text-body-sm font-medium text-foreground">La Redoute</span>
+              <span className="text-body-sm font-medium text-foreground">Test</span>
               <span className="text-caption text-muted-foreground">Production</span>
             </div>
             <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-fast" />
