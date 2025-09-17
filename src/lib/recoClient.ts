@@ -1,4 +1,4 @@
-export const API_BASE = import.meta.env.VITE_API_BASE as string;
+export const API_BASE = (import.meta.env.VITE_API_BASE as string) || "/api";
 export const API_VERSION = (import.meta.env.VITE_API_VERSION as string) || "v1";
 export const DEFAULT_TENANT = (import.meta.env.VITE_DEFAULT_TENANT as string) || "la_redoute";
 
@@ -6,7 +6,11 @@ function must(v: string | undefined, name: string) {
   if (!v) throw new Error(`${name} manquant (check .env.local)`);
   return v;
 }
-must(API_BASE, "VITE_API_BASE");
+// En dev, on peut utiliser le proxy Vite "/api" pour contourner CORS sans changer le backend.
+// On ne force pas l'existence de VITE_API_BASE si un proxy est présent.
+if (!API_BASE) {
+  throw new Error("VITE_API_BASE manquant (check .env.local) ou utiliser le proxy /api");
+}
 
 async function apiGet<T>(path: string, opts?: { headers?: Record<string, string> }): Promise<T> {
   const url = `${API_BASE}${path}`;
